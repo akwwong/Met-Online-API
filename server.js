@@ -4,6 +4,34 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 dotenv.config();
 const userService = require("./user-service.js");
+const passport = require("passport");
+const passportJWT = require("passport-jwt");
+
+let ExtractJwt = passportJWT.ExtractJwt;
+let JwtStrategy = passportJWT.Strategy;
+
+let jwtOptions = {
+    jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('jwt'),
+    secretOrKey: process.env.JWT_SECRET
+
+};
+
+let strategy = new JwtStrategy(jwtOptions, (jwt_payload, next) => {
+
+    if (jwt_payload) {
+
+        next(null, {
+            _id: jwt_payload._id,
+            userName: jwt_payload.userName
+        });
+
+    } else{
+        next(null, false);
+    }
+});
+
+passport.use(strategy);
+app.use(passport.initialize());
 
 const HTTP_PORT = process.env.PORT || 8080;
 
@@ -27,9 +55,7 @@ app.post("/api/user/login", (req, res) => {
         // consisting of two properties: _id and userName that match the value returned in the "user" object
         let payload = {
             _id: user._id,
-            userName: user.userName,
-            favourites: user.favourites,
-            history: user.history
+            userName:user.userName
         };
     
         // sign the payload using "jwt" 
