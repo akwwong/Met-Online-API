@@ -1,3 +1,3 @@
-# The-MET-Online-API
+# The MET Online API
 
 API for The MET Online.
